@@ -4,10 +4,14 @@ from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 import numpy as np
 import time
+import keras_ocr
+
+
 
 model = load_model("ID_detector.model")
 cap = cv2.VideoCapture(0)
 x, y, w, h =  400, 30, 600,600
+ocr_pipe = keras_ocr.pipeline.Pipeline()
 
 frameno = 0
 max_checks = 10
@@ -56,19 +60,28 @@ while not has_id:
 
     if cv2.waitKey(10) == ord('q'):  # wait until 'q' key is pressed
         break
-
+no = 0
 while not ocr_done and has_id:
     ret, frame = cap.read()
     if not ret:
         continue
 
     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-    cv2.putText(frame, f" Please bring your ID closer to the screen", (int(x), int(y + h + 20)),
+    cv2.putText(frame, f" Please bring your ID closer to the screen in {no}", (int(x), int(y + h + 20)),
                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    roi = frame[y:y + h, x:x + w]
+    roi = img_to_array(roi)
+
 
     # HERE IS WHERE THE OCR COMES IN
+    if no==10:
+      ocrpred = ocr_pipe.recognize([roi])
+      print(ocrpred)
+      break
+
 
     cv2.imshow('smartID',frame)
+    no+=1
 
     if cv2.waitKey(10) == ord('q'):  # wait until 'q' key is pressed
         break
