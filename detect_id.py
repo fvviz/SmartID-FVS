@@ -27,6 +27,7 @@ while not has_id:
             break
         else:
             frameno=0
+            checklist = [0 for i in range(max_checks)]
 
     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
     roi = frame[y:y + h, x:x + w]
